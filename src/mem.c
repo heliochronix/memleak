@@ -18,6 +18,9 @@
 #include <assert.h>
 #include "mem.h"
 
+/* Linked list head */
+alloc_t *head = NULL;
+
 /* Symbols for actual malloc and free library functions */
 void *__real_malloc(size_t size);
 void __real_free(void *ptr);
@@ -42,6 +45,16 @@ void __wrap_free(void *ptr)
 unsigned int mem_report(report_func_t report_func)
 {
     unsigned int count = 0;
+    alloc_t *entry = head;
+
+    /* Find all allocated blocks */
+    while (entry) {
+        if (report_func) {
+            report_func(entry);
+        }
+        entry = entry->next;
+        count++;
+    }
 
     /* Return number of blocks */
     return count;

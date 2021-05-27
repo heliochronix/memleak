@@ -22,6 +22,7 @@ typedef struct alloc {
     const void *alloc_ptr;  /* Allocated memory pointer */
     const void *ret_addr;   /* Return address, indicates function calling malloc */
     size_t alloc_size;      /* Allocated size */
+    struct alloc *next;     /* Next allocation entry */
 } alloc_t;
 
 /* Function pointer signature for report printing */
