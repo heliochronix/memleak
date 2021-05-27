@@ -19,6 +19,11 @@
 #define DEFAULT_MISSED 0
 #endif
 
+/* Entry printing function for mem_report */
+static inline void print_entry(const alloc_t *entry) {
+    printf("%p allocated %lu bytes at %p\n", entry->ret_addr, entry->alloc_size, entry->alloc_ptr);
+}
+
 int main(int argc, char **argv)
 {
     int c, count = DEFAULT_COUNT, miss = DEFAULT_MISSED;
@@ -50,6 +55,9 @@ int main(int argc, char **argv)
         goto usage;
     }
 
+    /* Final report and cleanup */
+    printf("Program terminating. Finding all left over memory...\n");
+    printf("Found %u blocks still allocated\n", mem_report(print_entry));
     exit(EXIT_SUCCESS);
 
 usage:
