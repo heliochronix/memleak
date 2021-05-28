@@ -8,9 +8,9 @@ the implementation to be platform independent. For example, it could be used
 with a simple RTOS that has minimal C library functionality. It does, however,
 depend on GCC as the compiler to provide both the `--wrap` linker functionality
 mentioned previous, as well as the `__builtin_return_address(0)` call that
-permits logging of an address in the calling function. It also makes use of
+permits logging of an address in the calling function. ~~It also makes use of
 `assert` when an attempt to free unaccounted for memory occors, though this is
-not strictly needed.
+not strictly needed.~~
 
 The implementation is fairly simple, leveraging a linear linked list of
 accounting entries, one per malloc. Whenever `malloc` is called, `__wrap_malloc`
@@ -30,16 +30,17 @@ and solutions for the current implementation are:
   used on projects built with other toolchains. This can be fixed by checking
   compiler macros and implementing preprocessor code to use the  appropriate
   functions for each toolchain.
-- Dependent on assert: This again limits the applicability of the library
+- ~~Dependent on assert: This again limits the applicability of the library
   if the given implementation of the library does not have support for the C
   library assert function. This can be fixed similar to the thread synchronization
   mechanism by providing a user definable function to call in case of an
-  assert-like condition.
+  assert-like condition.~~
 - May not cover `calloc` and `realloc`: Depending on the implemented C library,
   `calloc` and `realloc` may not make use of `malloc` and `free`, so these cases
-  may not be accounted for and could result in asserts occuring when `free` is
-  invoked for these allocations. This and the previous problem could be avoided
+  may not be accounted for ~~and could result in asserts occuring when `free` is
+  invoked for these allocations.~~ This and the previous problem could be avoided
   all-together if instead of asserting on an unaccounted for block, it instead
   just silently attempts to perform the free operation on the pointer and returns.
+  __NOTE: This solution has been implemented since writing this document.__
 - Does not account for itself: The library's accounting data structure is not a
   part of the accounting process.

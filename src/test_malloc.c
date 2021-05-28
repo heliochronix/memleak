@@ -92,6 +92,7 @@ int main(int argc, char **argv)
     /* Final report and cleanup */
     printf("Program terminating. Finding all left over memory...\n");
     printf("Found %u blocks still allocated\n", mem_report(print_entry));
+    mem_cleanup();
     exit(EXIT_SUCCESS);
 
 usage:

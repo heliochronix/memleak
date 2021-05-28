@@ -10,8 +10,7 @@
  * The report_func parameter is used in order to keep the library platform
  * independent, as stdio functions like printf may not be available in all C
  * library implementations. This library is implemented such that it can be used
- * on any system, assuming it is compiled with GCC. Availability of assert.h is
- * the only assumed C library besides stdlib's malloc and free.
+ * on any system, assuming it is compiled with GCC.
  */
 
 #ifndef _MEM_H_
@@ -32,5 +31,8 @@ typedef void (*report_func_t)(const alloc_t *entry);
  * Optionally invokes report_func to allow users to print the data.
  */
 unsigned int mem_report(report_func_t report_func);
+
+/* Memory accounting cleanup. Removes all accounting data structures */
+void mem_cleanup(void);
 
 #endif /* _MEM_H_ */

@@ -10,12 +10,10 @@
  * The report_func parameter is used in order to keep the library platform
  * independent, as stdio functions like printf may not be available in all C
  * library implementations. This library is implemented such that it can be used
- * on any system, assuming it is compiled with GCC. Availability of assert.h is
- * the only assumed C library besides stdlib's malloc and free.
+ * on any system, assuming it is compiled with GCC.
  */
 
 #include <stdlib.h>
-#include <assert.h>
 #include "mem.h"
 
 /* Linked list head */
@@ -68,21 +66,23 @@ void __wrap_free(void *ptr)
         return;
     }
 
-    /* Find accounting entry for pointer, assert if it's not located */
+    /* Find accounting entry for pointer */
     while (entry && (entry->alloc_ptr != ptr)) {
         prev = entry;
         entry = entry->next;
     }
-    assert(entry != NULL);
 
-    /* Unlink and deallocate memory */
-    if (prev != NULL) {
-        prev->next = entry->next;
-    } else {
-        head = entry->next;
+    if (entry != NULL) {
+        /* Unlink and deallocate accounting memory */
+        if (prev != NULL) {
+            prev->next = entry->next;
+        } else {
+            head = entry->next;
+        }
+        __real_free(entry);
     }
+    /* Free the block of memory */
     __real_free(ptr);
-    __real_free(entry);
     return;
 }
 
@@ -93,16 +93,32 @@ unsigned int mem_report(report_func_t report_func)
 {
     unsigned int count = 0;
     alloc_t *entry = head;
+    alloc_t *next = NULL;
 
     /* Find all allocated blocks */
     while (entry) {
+        next = entry->next;
         if (report_func) {
             report_func(entry);
         }
-        entry = entry->next;
+        entry = next;
         count++;
     }
 
     /* Return number of blocks */
     return count;
+}
+
+/* Memory accounting cleanup. Removes all accounting data structures */
+void mem_cleanup(void)
+{
+    alloc_t *entry = head;
+    alloc_t *next = NULL;
+
+    while (entry) {
+        next = entry->next;
+        __real_free(entry);
+        entry = next;
+    }
+    head = NULL;
 }
