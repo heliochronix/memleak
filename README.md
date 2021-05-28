@@ -1,5 +1,6 @@
 # Memory Leak Detection System
 
+## Description
 This is a simple heap usage accounting library that is implemented via malloc
 and free wrappers and an accounting data structure. It accomplishes this by
 leveraging the `--wrap` linker option in GCC. This method of implementation
@@ -8,7 +9,7 @@ the implementation to be platform independent. For example, it could be used
 with a simple RTOS that has minimal C library functionality. It does, however,
 depend on GCC as the compiler to provide both the `--wrap` linker functionality
 mentioned previous, as well as the `__builtin_return_address(0)` call that
-permits logging of an address in the calling function. ~~It also makes use of
+permits logging of the address after the malloc call. ~~It also makes use of
 `assert` when an attempt to free unaccounted for memory occors, though this is
 not strictly needed.~~
 
@@ -44,3 +45,25 @@ and solutions for the current implementation are:
   __NOTE: This solution has been implemented since writing this document.__
 - Does not account for itself: The library's accounting data structure is not a
   part of the accounting process.
+- Return address is not the clearest indicator of the calling function:
+  The return address is the address after the call/branch to malloc. Due to ASLR,
+  it can be hard to track down which function invoked malloc without a little
+  memory math and address to symbol conversion on linux systems. Due to the nature
+  of my efforts to make it platform independent, I didn't make use of backtrace
+  and other useful functions to give a clear indicator of the calling function.
+  With a little more time I would have investigated these options further to
+  provide a more friendly user experience.
+
+## Build
+To build this project, GCC and Make on a Linux system is required. To build and run:
+```
+make
+./test_malloc [options]
+```
+Possible options include:
+- `-b <block_count>`:   How many blocks to allocate (besides the initial array)
+- `-m <miss_count>`:    How many blocks to "accidently" miss freeing, which forces
+                        a failure condition where a block that was malloced is not
+                        freed
+- `-s`:                 Skip freeing the main data array
+- `-v`:                 Enable verbose output, which reports block usage mid-run
